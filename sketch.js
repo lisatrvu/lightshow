@@ -126,29 +126,37 @@ function drawPulseRings(c1, c2, c3, size, speed) {
   strokeWeight(4);
 
   let r = (sin(frameCount * 0.05 * speed) * 0.5 + 0.5) * size;
+  
+  // Move rings down on mobile to avoid overlapping controls
+  const centerX = width / 2;
+  const centerY = isMobile ? height / 2 + 80 : height / 2;
 
   // Each ring uses a different color
   stroke(c1);
-  ellipse(width / 2, height / 2, r * 2, r * 2);
+  ellipse(centerX, centerY, r * 2, r * 2);
   
   stroke(c2);
-  ellipse(width / 2, height / 2, r * 3, r * 3);
+  ellipse(centerX, centerY, r * 3, r * 3);
   
   stroke(c3);
-  ellipse(width / 2, height / 2, r * 4, r * 4);
+  ellipse(centerX, centerY, r * 4, r * 4);
 }
 
 function drawSwirlOrbs(c1, c2, c3, size, speed) {
   noStroke();
 
   let t = frameCount * 0.02 * speed;
+  
+  // Move orbs down on mobile to avoid overlapping controls
+  const centerX = width / 2;
+  const centerY = isMobile ? height / 2 + 80 : height / 2;
 
   for (let i = 0; i < 10; i++) {
     let angle = t + (TWO_PI / 10) * i;
     let radius = size;
 
-    let x = width / 2 + cos(angle) * radius;
-    let y = height / 2 + sin(angle) * radius;
+    let x = centerX + cos(angle) * radius;
+    let y = centerY + sin(angle) * radius;
 
     // Cycle through the 3 colors
     if (i % 3 === 0) fill(c1);
@@ -164,6 +172,10 @@ function drawWaves(c1, c2, c3, size, speed) {
   strokeWeight(4);
 
   let t = frameCount * 0.02 * speed;
+  
+  // Move waves down on mobile to avoid overlapping controls
+  const centerX = width / 2;
+  const centerY = isMobile ? height / 2 + 80 : height / 2;
 
   for (let i = 0; i < 8; i++) {
     let r = size + i * 40 + sin(t + i) * 20;
@@ -173,7 +185,7 @@ function drawWaves(c1, c2, c3, size, speed) {
     else if (i % 3 === 1) stroke(c2);
     else stroke(c3);
     
-    ellipse(width/2, height/2, r*2, r*2);
+    ellipse(centerX, centerY, r*2, r*2);
   }
 }
 
@@ -181,12 +193,12 @@ function drawInstructions() {
   noStroke();
   fill(255);
   if (isMobile) {
-    // Instructions at the top on mobile
-    textSize(20);
+    // Instructions at the top on mobile (smaller to avoid cutting off)
+    textSize(16);
     textAlign(LEFT, TOP);
     text(
       "🎛 Tap colors + sliders → Your light show reacts instantly!",
-      20, 25
+      20, 20
     );
     textAlign(LEFT, BASELINE); // Reset to default
   } else {
