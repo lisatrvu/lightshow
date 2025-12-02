@@ -1,24 +1,47 @@
 let colorPickers = [];
 let sizeSlider, speedSlider, patternSelect;
+let isMobile = false;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  
+  // Detect mobile device
+  isMobile = windowWidth < 768;
 
-  // --- Multiple Color Pickers ---
+  // Mobile-optimized sizes
+  const colorPickerSize = isMobile ? 60 : 40;
+  const colorPickerSpacing = isMobile ? 80 : 40;
+  const sliderWidth = isMobile ? windowWidth - 80 : 200;
+  const sliderHeight = isMobile ? 20 : 15;
+  const controlSpacing = isMobile ? 90 : 40;
+  const startY = isMobile ? 30 : 20;
+  const startX = isMobile ? 30 : 20;
+
+  // --- Multiple Color Pickers (bigger on mobile) ---
   for (let i = 0; i < 3; i++) {
     let cp = createColorPicker(['#ff00ff', '#00ffff', '#ffff00'][i]);
-    cp.position(20, 20 + i * 40);
+    cp.size(colorPickerSize);
+    cp.position(startX, startY + i * colorPickerSpacing);
     colorPickers.push(cp);
   }
 
   sizeSlider = createSlider(30, 300, 120);
-  sizeSlider.position(20, 160);
+  sizeSlider.size(sliderWidth);
+  sizeSlider.style('height', sliderHeight + 'px');
+  sizeSlider.position(startX, startY + 3 * colorPickerSpacing);
 
   speedSlider = createSlider(0.5, 5, 2, 0.1);
-  speedSlider.position(20, 200);
+  speedSlider.size(sliderWidth);
+  speedSlider.style('height', sliderHeight + 'px');
+  speedSlider.position(startX, startY + 3 * colorPickerSpacing + controlSpacing);
 
   patternSelect = createSelect();
-  patternSelect.position(20, 240);
+  if (isMobile) {
+    patternSelect.style('font-size', '20px');
+    patternSelect.style('padding', '15px');
+    patternSelect.style('min-height', '50px');
+  }
+  patternSelect.position(startX, startY + 3 * colorPickerSpacing + controlSpacing * 2);
   patternSelect.option('Pulse Rings');
   patternSelect.option('Swirl Orbs');
   patternSelect.option('Outward Waves');
@@ -102,13 +125,66 @@ function drawWaves(c1, c2, c3, size, speed) {
 function drawInstructions() {
   noStroke();
   fill(255);
-  textSize(16);
+  const instructionSize = isMobile ? 24 : 16;
+  const instructionY = isMobile ? height - 40 : height - 60;
+  const instructionX = isMobile ? 20 : 20;
+  textSize(instructionSize);
   text(
     "🎛 Tap colors + sliders → Your light show reacts instantly!",
-    20, height - 60
+    instructionX, instructionY
   );
 }
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
+  // Re-detect mobile on resize
+  const wasMobile = isMobile;
+  isMobile = windowWidth < 768;
+  
+  // If mobile state changed, recreate controls with new sizes
+  if (wasMobile !== isMobile) {
+    // Remove old controls
+    for (let cp of colorPickers) cp.remove();
+    sizeSlider.remove();
+    speedSlider.remove();
+    patternSelect.remove();
+    
+    // Recreate with new sizes
+    const colorPickerSize = isMobile ? 60 : 40;
+    const colorPickerSpacing = isMobile ? 80 : 40;
+    const sliderWidth = isMobile ? windowWidth - 80 : 200;
+    const sliderHeight = isMobile ? 20 : 15;
+    const controlSpacing = isMobile ? 90 : 40;
+    const startY = isMobile ? 30 : 20;
+    const startX = isMobile ? 30 : 20;
+    
+    colorPickers = [];
+    for (let i = 0; i < 3; i++) {
+      let cp = createColorPicker(['#ff00ff', '#00ffff', '#ffff00'][i]);
+      cp.size(colorPickerSize);
+      cp.position(startX, startY + i * colorPickerSpacing);
+      colorPickers.push(cp);
+    }
+    
+    sizeSlider = createSlider(30, 300, 120);
+    sizeSlider.size(sliderWidth);
+    sizeSlider.style('height', sliderHeight + 'px');
+    sizeSlider.position(startX, startY + 3 * colorPickerSpacing);
+    
+    speedSlider = createSlider(0.5, 5, 2, 0.1);
+    speedSlider.size(sliderWidth);
+    speedSlider.style('height', sliderHeight + 'px');
+    speedSlider.position(startX, startY + 3 * colorPickerSpacing + controlSpacing);
+    
+    patternSelect = createSelect();
+    if (isMobile) {
+      patternSelect.style('font-size', '20px');
+      patternSelect.style('padding', '15px');
+      patternSelect.style('min-height', '50px');
+    }
+    patternSelect.position(startX, startY + 3 * colorPickerSpacing + controlSpacing * 2);
+    patternSelect.option('Pulse Rings');
+    patternSelect.option('Swirl Orbs');
+    patternSelect.option('Outward Waves');
+  }
 }
