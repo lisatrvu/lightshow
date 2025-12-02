@@ -7,44 +7,99 @@ function setup() {
   
   // Detect mobile device
   isMobile = windowWidth < 768;
+  
+  setupControls();
+}
 
-  // Mobile-optimized sizes
-  const colorPickerSize = isMobile ? 60 : 40;
-  const colorPickerSpacing = isMobile ? 80 : 40;
-  const sliderWidth = isMobile ? windowWidth - 80 : 200;
-  const sliderHeight = isMobile ? 20 : 15;
-  const controlSpacing = isMobile ? 90 : 40;
-  const startY = isMobile ? 30 : 20;
-  const startX = isMobile ? 30 : 20;
-
-  // --- Multiple Color Pickers (bigger on mobile) ---
-  for (let i = 0; i < 3; i++) {
-    let cp = createColorPicker(['#ff00ff', '#00ffff', '#ffff00'][i]);
-    cp.size(colorPickerSize);
-    cp.position(startX, startY + i * colorPickerSpacing);
-    colorPickers.push(cp);
+function setupControls() {
+  // Remove existing controls if they exist
+  for (let cp of colorPickers) {
+    if (cp) cp.remove();
   }
+  if (sizeSlider) sizeSlider.remove();
+  if (speedSlider) speedSlider.remove();
+  if (patternSelect) patternSelect.remove();
+  
+  colorPickers = [];
 
-  sizeSlider = createSlider(30, 300, 120);
-  sizeSlider.size(sliderWidth);
-  sizeSlider.style('height', sliderHeight + 'px');
-  sizeSlider.position(startX, startY + 3 * colorPickerSpacing);
-
-  speedSlider = createSlider(0.5, 5, 2, 0.1);
-  speedSlider.size(sliderWidth);
-  speedSlider.style('height', sliderHeight + 'px');
-  speedSlider.position(startX, startY + 3 * colorPickerSpacing + controlSpacing);
-
-  patternSelect = createSelect();
   if (isMobile) {
-    patternSelect.style('font-size', '20px');
-    patternSelect.style('padding', '15px');
-    patternSelect.style('min-height', '50px');
+    // Mobile layout: instructions at top, sliders horizontally, color pickers on side
+    const colorPickerSize = 60;
+    const colorPickerSpacing = 75;
+    const sliderHeight = 20;
+    const sideMargin = 20;
+    const topMargin = 20;
+    
+    // Instructions will be drawn at top (y = 30)
+    // Sliders horizontally across the top
+    const sliderY = 70;
+    const sliderWidth = (windowWidth - 100) / 2; // Two sliders side by side with spacing
+    
+    // Size slider on left
+    sizeSlider = createSlider(30, 300, 120);
+    sizeSlider.size(sliderWidth);
+    sizeSlider.style('height', sliderHeight + 'px');
+    sizeSlider.position(sideMargin, sliderY);
+    
+    // Speed slider on right
+    speedSlider = createSlider(0.5, 5, 2, 0.1);
+    speedSlider.size(sliderWidth);
+    speedSlider.style('height', sliderHeight + 'px');
+    speedSlider.position(sideMargin + sliderWidth + 20, sliderY);
+    
+    // Pattern select below sliders
+    patternSelect = createSelect();
+    patternSelect.style('font-size', '18px');
+    patternSelect.style('padding', '12px');
+    patternSelect.style('min-height', '45px');
+    patternSelect.position(sideMargin, sliderY + 50);
+    patternSelect.option('Pulse Rings');
+    patternSelect.option('Swirl Orbs');
+    patternSelect.option('Outward Waves');
+    
+    // Color pickers stacked vertically on the left side
+    const colorPickerX = sideMargin;
+    const colorPickerStartY = sliderY + 120; // Below pattern select
+    
+    for (let i = 0; i < 3; i++) {
+      let cp = createColorPicker(['#ff00ff', '#00ffff', '#ffff00'][i]);
+      cp.size(colorPickerSize);
+      cp.position(colorPickerX, colorPickerStartY + i * colorPickerSpacing);
+      colorPickers.push(cp);
+    }
+  } else {
+    // Desktop layout (original)
+    const colorPickerSize = 40;
+    const colorPickerSpacing = 40;
+    const sliderWidth = 200;
+    const sliderHeight = 15;
+    const controlSpacing = 40;
+    const startY = 20;
+    const startX = 20;
+    
+    for (let i = 0; i < 3; i++) {
+      let cp = createColorPicker(['#ff00ff', '#00ffff', '#ffff00'][i]);
+      cp.size(colorPickerSize);
+      cp.position(startX, startY + i * colorPickerSpacing);
+      colorPickers.push(cp);
+    }
+    
+    sizeSlider = createSlider(30, 300, 120);
+    sizeSlider.size(sliderWidth);
+    sizeSlider.style('height', sliderHeight + 'px');
+    sizeSlider.position(startX, startY + 3 * colorPickerSpacing);
+    
+    speedSlider = createSlider(0.5, 5, 2, 0.1);
+    speedSlider.size(sliderWidth);
+    speedSlider.style('height', sliderHeight + 'px');
+    speedSlider.position(startX, startY + 3 * colorPickerSpacing + controlSpacing);
+    
+    patternSelect = createSelect();
+    patternSelect.position(startX, startY + 3 * colorPickerSpacing + controlSpacing * 2);
+    patternSelect.option('Pulse Rings');
+    patternSelect.option('Swirl Orbs');
+    patternSelect.option('Outward Waves');
   }
-  patternSelect.position(startX, startY + 3 * colorPickerSpacing + controlSpacing * 2);
-  patternSelect.option('Pulse Rings');
-  patternSelect.option('Swirl Orbs');
-  patternSelect.option('Outward Waves');
 }
 
 function draw() {
@@ -125,14 +180,25 @@ function drawWaves(c1, c2, c3, size, speed) {
 function drawInstructions() {
   noStroke();
   fill(255);
-  const instructionSize = isMobile ? 24 : 16;
-  const instructionY = isMobile ? height - 40 : height - 60;
-  const instructionX = isMobile ? 20 : 20;
-  textSize(instructionSize);
-  text(
-    "🎛 Tap colors + sliders → Your light show reacts instantly!",
-    instructionX, instructionY
-  );
+  if (isMobile) {
+    // Instructions at the top on mobile
+    textSize(20);
+    textAlign(LEFT, TOP);
+    text(
+      "🎛 Tap colors + sliders → Your light show reacts instantly!",
+      20, 25
+    );
+    textAlign(LEFT, BASELINE); // Reset to default
+  } else {
+    // Instructions at the bottom on desktop
+    textSize(16);
+    textAlign(LEFT, BOTTOM);
+    text(
+      "🎛 Tap colors + sliders → Your light show reacts instantly!",
+      20, height - 60
+    );
+    textAlign(LEFT, BASELINE); // Reset to default
+  }
 }
 
 function windowResized() {
@@ -141,50 +207,8 @@ function windowResized() {
   const wasMobile = isMobile;
   isMobile = windowWidth < 768;
   
-  // If mobile state changed, recreate controls with new sizes
-  if (wasMobile !== isMobile) {
-    // Remove old controls
-    for (let cp of colorPickers) cp.remove();
-    sizeSlider.remove();
-    speedSlider.remove();
-    patternSelect.remove();
-    
-    // Recreate with new sizes
-    const colorPickerSize = isMobile ? 60 : 40;
-    const colorPickerSpacing = isMobile ? 80 : 40;
-    const sliderWidth = isMobile ? windowWidth - 80 : 200;
-    const sliderHeight = isMobile ? 20 : 15;
-    const controlSpacing = isMobile ? 90 : 40;
-    const startY = isMobile ? 30 : 20;
-    const startX = isMobile ? 30 : 20;
-    
-    colorPickers = [];
-    for (let i = 0; i < 3; i++) {
-      let cp = createColorPicker(['#ff00ff', '#00ffff', '#ffff00'][i]);
-      cp.size(colorPickerSize);
-      cp.position(startX, startY + i * colorPickerSpacing);
-      colorPickers.push(cp);
-    }
-    
-    sizeSlider = createSlider(30, 300, 120);
-    sizeSlider.size(sliderWidth);
-    sizeSlider.style('height', sliderHeight + 'px');
-    sizeSlider.position(startX, startY + 3 * colorPickerSpacing);
-    
-    speedSlider = createSlider(0.5, 5, 2, 0.1);
-    speedSlider.size(sliderWidth);
-    speedSlider.style('height', sliderHeight + 'px');
-    speedSlider.position(startX, startY + 3 * colorPickerSpacing + controlSpacing);
-    
-    patternSelect = createSelect();
-    if (isMobile) {
-      patternSelect.style('font-size', '20px');
-      patternSelect.style('padding', '15px');
-      patternSelect.style('min-height', '50px');
-    }
-    patternSelect.position(startX, startY + 3 * colorPickerSpacing + controlSpacing * 2);
-    patternSelect.option('Pulse Rings');
-    patternSelect.option('Swirl Orbs');
-    patternSelect.option('Outward Waves');
+  // Recreate controls if mobile state changed or on resize (to update positions)
+  if (wasMobile !== isMobile || isMobile) {
+    setupControls();
   }
 }
