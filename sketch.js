@@ -12,14 +12,42 @@ function setup() {
 }
 
 function setupControls() {
-  // Remove existing controls if they exist
+  // Save current values before removing controls
+  let savedColors = [];
+  let savedSize = 120;
+  let savedSpeed = 2;
+  let savedPattern = 'Pulse Rings';
+  
+  if (colorPickers.length > 0) {
+    for (let cp of colorPickers) {
+      if (cp) {
+        // Get the hex color value from the color picker
+        let colorValue = cp.value();
+        savedColors.push(colorValue);
+      }
+    }
+  } else {
+    // Default colors if no pickers exist yet
+    savedColors = ['#ff00ff', '#00ffff', '#ffff00'];
+  }
+  
+  if (sizeSlider) {
+    savedSize = sizeSlider.value();
+    sizeSlider.remove();
+  }
+  if (speedSlider) {
+    savedSpeed = speedSlider.value();
+    speedSlider.remove();
+  }
+  if (patternSelect) {
+    savedPattern = patternSelect.value();
+    patternSelect.remove();
+  }
+  
+  // Remove existing color pickers
   for (let cp of colorPickers) {
     if (cp) cp.remove();
   }
-  if (sizeSlider) sizeSlider.remove();
-  if (speedSlider) speedSlider.remove();
-  if (patternSelect) patternSelect.remove();
-  
   colorPickers = [];
 
   if (isMobile) {
@@ -36,13 +64,13 @@ function setupControls() {
     const sliderWidth = (windowWidth - 100) / 2; // Two sliders side by side with spacing
     
     // Size slider on left
-    sizeSlider = createSlider(30, 300, 120);
+    sizeSlider = createSlider(30, 300, savedSize);
     sizeSlider.size(sliderWidth);
     sizeSlider.style('height', sliderHeight + 'px');
     sizeSlider.position(sideMargin, sliderY);
     
     // Speed slider on right
-    speedSlider = createSlider(0.5, 5, 2, 0.1);
+    speedSlider = createSlider(0.5, 5, savedSpeed, 0.1);
     speedSlider.size(sliderWidth);
     speedSlider.style('height', sliderHeight + 'px');
     speedSlider.position(sideMargin + sliderWidth + 20, sliderY);
@@ -56,13 +84,14 @@ function setupControls() {
     patternSelect.option('Pulse Rings');
     patternSelect.option('Swirl Orbs');
     patternSelect.option('Outward Waves');
+    patternSelect.value(savedPattern);
     
     // Color pickers stacked vertically on the left side
     const colorPickerX = sideMargin;
     const colorPickerStartY = sliderY + 120; // Below pattern select
     
     for (let i = 0; i < 3; i++) {
-      let cp = createColorPicker(['#ff00ff', '#00ffff', '#ffff00'][i]);
+      let cp = createColorPicker(savedColors[i] || ['#ff00ff', '#00ffff', '#ffff00'][i]);
       cp.size(colorPickerSize);
       cp.position(colorPickerX, colorPickerStartY + i * colorPickerSpacing);
       colorPickers.push(cp);
@@ -78,18 +107,18 @@ function setupControls() {
     const startX = 20;
     
     for (let i = 0; i < 3; i++) {
-      let cp = createColorPicker(['#ff00ff', '#00ffff', '#ffff00'][i]);
+      let cp = createColorPicker(savedColors[i] || ['#ff00ff', '#00ffff', '#ffff00'][i]);
       cp.size(colorPickerSize);
       cp.position(startX, startY + i * colorPickerSpacing);
       colorPickers.push(cp);
     }
     
-    sizeSlider = createSlider(30, 300, 120);
+    sizeSlider = createSlider(30, 300, savedSize);
     sizeSlider.size(sliderWidth);
     sizeSlider.style('height', sliderHeight + 'px');
     sizeSlider.position(startX, startY + 3 * colorPickerSpacing);
     
-    speedSlider = createSlider(0.5, 5, 2, 0.1);
+    speedSlider = createSlider(0.5, 5, savedSpeed, 0.1);
     speedSlider.size(sliderWidth);
     speedSlider.style('height', sliderHeight + 'px');
     speedSlider.position(startX, startY + 3 * colorPickerSpacing + controlSpacing);
@@ -99,6 +128,7 @@ function setupControls() {
     patternSelect.option('Pulse Rings');
     patternSelect.option('Swirl Orbs');
     patternSelect.option('Outward Waves');
+    patternSelect.value(savedPattern);
   }
 }
 
@@ -219,8 +249,9 @@ function windowResized() {
   const wasMobile = isMobile;
   isMobile = windowWidth < 768;
   
-  // Recreate controls if mobile state changed or on resize (to update positions)
-  if (wasMobile !== isMobile || isMobile) {
+  // Only recreate controls if mobile state changed (to update layout)
+  // Don't recreate on every resize to preserve color values
+  if (wasMobile !== isMobile) {
     setupControls();
   }
 }
