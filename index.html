@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Light Show Generator</title>
+
+    <!-- Load p5.js from the CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+
+    <!-- Optional: p5.dom (for UI elements like sliders & color pickers) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.dom.min.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden; /* so the canvas fills the screen with no scroll */
+        background: black;
+      }
+
+      /* Warning Modal Styles */
+      #lightWarning {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        font-family: Arial, sans-serif;
+      }
+
+      #warningContent {
+        background: #1a1a1a;
+        border: 2px solid #ff6b6b;
+        border-radius: 12px;
+        padding: 30px;
+        max-width: 500px;
+        text-align: center;
+        color: white;
+        box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
+      }
+
+      #warningContent h2 {
+        color: #ff6b6b;
+        margin-top: 0;
+        font-size: 24px;
+      }
+
+      #warningContent p {
+        line-height: 1.6;
+        margin: 20px 0;
+        font-size: 16px;
+      }
+
+      #warningButton {
+        background: #ff6b6b;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        font-size: 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: background 0.3s;
+      }
+
+      #warningButton:hover {
+        background: #ff5252;
+      }
+
+      #warningButton:active {
+        background: #ff3838;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Light Sensitivity Warning Modal -->
+    <div id="lightWarning">
+      <div id="warningContent">
+        <h2>⚠️ Photosensitivity Warning</h2>
+        <p>
+          This application contains animated light effects, pulsing patterns, and rapidly changing colors that may trigger seizures in individuals with photosensitive epilepsy or cause discomfort for those sensitive to flashing lights.
+        </p>
+        <p>
+          If you are sensitive to flashing lights, please proceed with caution or exit this page.
+        </p>
+        <button id="warningButton" onclick="closeWarning()">I Understand, Continue</button>
+      </div>
+    </div>
+
+    <!-- Load your sketch -->
+    <script src="sketch.js"></script>
+
+    <script>
+      function closeWarning() {
+        document.getElementById('lightWarning').style.display = 'none';
+      }
+    </script>
+  </body>
+</html>
